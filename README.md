@@ -4,7 +4,9 @@ Webshot provides a simple API for taking webpage screenshots. The module is a
 light wrapper around PhantomJS, which utilizes WebKit to perform the page
 rendering.
 
-## Examples A simple url example:
+## Examples
+
+A simple url example:
 
 ```javascript
 var webshot = require('webshot');
@@ -133,22 +135,21 @@ the callback in a call to webshot.
       <td>Any additional headers to be sent in the HTTP request.</td>
     </tr>
     <tr>
-      <th>script</th>
-      <td>undefined</td>
-      <td>An arbitrary function to be executed on the requested page. The script
-      executes within the page's context and can be used to modify the page
-      before a screenshot is taken.</td>
-    </tr>
-    <tr>
-      <th>onInitialized</th>
-      <td>undefined</td>
-      <td>Like script, but run before the scripts included in the webpage.</td>
-    </tr>
-    <tr>
       <th>defaultWhiteBackground</th>
       <td>false</td>
       <td>When taking the screenshot, adds a white background if not defined
       elsewhere.</td>
+    </tr>
+    <tr>
+      <th>customCSS</th>
+      <td>''</td>
+      <td>When taking the screenshot, adds custom CSS rules if defined.</td>
+    </tr>
+    <tr>
+      <th>quality</th>
+      <td>75</td>
+      <td>JPEG compression quality. A higher number will look better, but creates
+        a larger file. Quality setting has no effect when streaming.</td>
     </tr>
     <tr>
       <th>streamType</th>
@@ -181,13 +182,58 @@ the callback in a call to webshot.
       <td>Wait for the web page to signal to webshot when to take the photo
       using <code>window.callPhantom('takeShot');</code></td>
     </tr>
+    <tr>
+      <th>errorIfStatusIsNot200</th>
+      <td>false</td>
+      <td>If the loaded page has a non-200 status code, don't take a screenshot, cause an error instead.</td>
+    </tr>
   </tbody>
 </table>
 
+### Phantom page properties
 In addition to these options, the following options can be specified and will be
 passed to the [Phantom page
 object](https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage):
 `paperSize`, `zoomFactor`, `cookies`, `customHeaders`, and `settings`.
+
+### Phantom callbacks
+Arbitrary scripts can be run on the page before it gets rendered by using any of
+Phantom's [page callbacks](https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#callbacks-list),
+such as `onLoadFinished` or `onResourceRequested`. For example, the script below
+changes the text of every link on the page:
+
+```javascript
+var options = {
+  onLoadFinished: function() {
+    var links = document.getElementsByTagName('a');
+
+    for (var i=0; i<links.length; i++) {
+      var link = links[i];
+      link.innerHTML = 'My custom text';
+    } 
+  }
+}
+```
+
+Note that the script will be serialized and then passed to Phantom as text, so all
+variable scope information will be lost. However, variables from the caller can be 
+passed into the script as follows:
+
+```javascript
+var options = {
+  onLoadFinished: {
+    fn: function() {
+      var links = document.getElementsByTagName('a');
+
+      for (var i=0; i<links.length; i++) {
+        var link = links[i];
+        link.innerHTML = this.foo;
+      } 
+    }
+  , context: {foo: 'My custom text'}
+  }
+}
+```
 
 ## Tests
 Tests are written with [Mocha](http://visionmedia.github.com/mocha/) and can be
@@ -201,6 +247,7 @@ that the [imagemagick CLI tools](http://www.imagemagick.org) be installed.
 [grunt-webshot](https://npmjs.org/package/grunt-webshot) is a Grunt wrapper for this package.
 
 ## License
+```
 (The MIT License)
 
 Copyright (c) 2012 Brenden Kokoszka
@@ -221,3 +268,4 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
