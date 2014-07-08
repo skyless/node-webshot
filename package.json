@@ -2,6 +2,7 @@
   "name": "webshot",
   "version": "0.15.1",
   "description": "Easy website screenshots",
+  "private": true,
   "author": "Brenden Kokoszka",
   "contributors": [
     {
@@ -16,7 +17,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "http://github.com/brenden/node-webshot.git"
+    "url": "https://github.com/skyless/node-webshot"
   },
   "engine": [
     "node >=0.7.00"
